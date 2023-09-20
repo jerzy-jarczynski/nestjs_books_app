@@ -3,8 +3,8 @@ import {
   ConflictException,
   Injectable,
 } from '@nestjs/common';
-import { Book } from '@prisma/client';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { Book, UserOnBooks } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class BooksService {
@@ -72,6 +72,31 @@ export class BooksService {
         throw new BadRequestException("Author doesn't exist");
       } else if (error.code === 'P2002') {
         throw new ConflictException('Title is already taken');
+      }
+      throw error;
+    }
+  }
+
+  public async addToFavorite(
+    favoriteData: Omit<UserOnBooks, 'id'>,
+  ): Promise<Book> {
+    const { userId, bookId } = favoriteData;
+    try {
+      return await this.prismaService.book.update({
+        where: { id: bookId },
+        data: {
+          users: {
+            create: {
+              user: {
+                connect: { id: userId },
+              },
+            },
+          },
+        },
+      });
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new BadRequestException("User or book doesn't exist");
       }
       throw error;
     }
