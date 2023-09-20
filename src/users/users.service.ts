@@ -73,7 +73,7 @@ export class UsersService {
         where: { id },
         data: {
           ...userData,
-        }
+        },
       });
     } catch (error) {
       if (error.code === 'P2025') {
