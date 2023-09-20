@@ -38,5 +38,5 @@ export class AuthController {
     res.send({
       message: 'success',
     });
-  }  
+  }
 }
